@@ -5,7 +5,7 @@ import './StandardToken.sol';
 /**
  * @title CabCoin
  *
- * @dev Implementation of UtrustToken.
+ * @dev Implementation of CabCoin.
  */
 contract CabCoin is StandardToken {
     
