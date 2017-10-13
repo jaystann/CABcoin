@@ -99,9 +99,10 @@ contract DevTeamContract{
             if(countConfirmations(i)>=MINIMUM_CONFIRMATION_COUNT 
             && transactions[i].registrationBlock<block.number-WAIT_BLOCKS
             && transactions[i].amount > 0){
+                var tmp = transactions[i].amoun;
                 transactions[i].amount = 0;
-                transactions[i]._to.transfer(transactions[i].amount);
-                pendingAmount = pendingAmount - transactions[i].amount;
+                transactions[i]._to.transfer(tmp);
+                pendingAmount = pendingAmount -tmp;
             }
             else{
                 if(transactions[i].registrationBlock<block.number-WAIT_BLOCKS){ 
