@@ -1,7 +1,7 @@
 'use strict';
 
 const assertJump = require('./helpers/assertJump');
-var CabCoin = artifacts.require('./CabCoin.sol');
+var CABCoin = artifacts.require('./CABCoin.sol');
 
 contract('StandardToken', function(accounts) {
 
@@ -10,7 +10,7 @@ contract('StandardToken', function(accounts) {
   let token;
   
   beforeEach(async function() {
-    token = await CabCoin.new(accounts[0], 100);
+    token = await CABCoin.new();
   });
   
   it('should be properly constructed', async function() {

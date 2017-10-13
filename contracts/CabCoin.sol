@@ -1,21 +1,26 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
-import './StandardToken.sol';
+import './OpenZeppelinToken.sol';
+import './Common/Constant.sol';
 
-/**
- * @title CabCoin
- *
- * @dev Implementation of CabCoin.
- */
-contract CabCoin is StandardToken {
+contract CABCoin is MintableToken,Constants{
     
+	
 	string public constant name = "CabCoin";
 	string public constant symbol = "CAB";
 	uint8 public constant decimals = 18;
-	uint public constant unit = 1000000000000000000;
 
-	uint public constant totalSupply = 0 * unit;
-
-	function CabCoin() {		
-	}
+  uint256 public constant maxTokenSupply = (10**18)*(10**9) ; 
+  function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
+  	if(totalSupply.add(_amount)<maxTokenSupply){
+  	  super.mint(_to,_amount);
+  	}
+  	else{
+  		return false; 
+  	}
+  }
+  
+  function getMaxTokenAvaliable() constant public  returns(uint256) {
+  	return (maxTokenSupply.sub(totalSupply)).mul(100-TEAM_SHARE_PERCENTAGE).div(100);
+  }
 }
