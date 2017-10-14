@@ -1,7 +1,6 @@
 pragma solidity ^0.4.15;
 
 import './Common/Constant.sol';
-
 contract DevTeamContract{
     
     struct Transaction{
@@ -12,22 +11,26 @@ contract DevTeamContract{
     
     uint256 public pendingAmount = 0;
     
-    uint256 constant  WAIT_BLOCKS = 500;
+    uint256 constant  WAIT_BLOCKS = 50;
     uint256 constant MINIMUM_CONFIRMATION_COUNT = 2;
     
     uint256 constant USER1_CODE = 1;// każdy user ma inny bit 
-    address constant USER1_ACCOUNT1 = 0x94DA43C587c515AD30eA86a208603a7586D2C25F; 
-    address constant USER1_ACCOUNT2 = 0x56947aC048452f75A64e2411CA140336cF939f7D;
+    address constant USER1_ACCOUNT1 = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c; 
+    address constant USER1_ACCOUNT2 = 0x14723a09acff6d2a60dcdf7aa4aff308fddc160c;
     uint256 constant USER2_CODE = 2;// każdy user ma inny bit 
-    address constant USER2_ACCOUNT1 = 0x59A5aC4033dB403587e8BEAb8996EDe2F170413a;
+    address constant USER2_ACCOUNT1 = 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db;
     uint256 constant USER3_CODE = 4;// każdy user ma inny bit 
     uint256 constant USER4_CODE = 8;// każdy user ma inny bit 
     
-    mapping (address => uint256) owners;
-    mapping (uint256 => uint256) confirmations;
+    mapping (address => uint256) public owners;
+    mapping (uint256 => uint256) public confirmations;
     Transaction[] public transactions  ;
     
     function DevTeamContract() public{
+        SetupAccounts();
+    }
+    
+    function SetupAccounts() public{
       owners[USER1_ACCOUNT1] = USER1_CODE; // pod jednym bitem (userem) może być więcej niż jedno konto
       owners[USER1_ACCOUNT2] = USER1_CODE;
       owners[USER2_ACCOUNT1] = USER2_CODE;
@@ -60,6 +63,8 @@ contract DevTeamContract{
     
     // Only human, wallet can not be invoked from other contract
     modifier isHuman() {
+        var sndr = msg.sender;
+        var orgn = tx.origin;
         if(msg.sender != tx.origin){
             revert();
         }
