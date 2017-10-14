@@ -15,6 +15,9 @@ contract DevTeamContractMock is DevTeamContract{
         SetupAccounts() ;
     }
     
+    function ProtectedCall() public isOwner isHuman {
+        
+    }
     
     function SetupAccounts() public{
         if(testAddr.length>=4){

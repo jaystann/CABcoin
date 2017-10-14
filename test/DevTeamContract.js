@@ -26,5 +26,28 @@ contract('DevTeamContractMock', function(accounts) {
     let totalAmount =  (await cntr.getTotalAmount.call()).toNumber();
     assert.equal(totalAmount,endBalance);
   });
+  
+  
+  it('should be callable from known Accounts', async function() {
+    try{
+      let res = await cntr.ProtectedCall({from:accounts[0]});
+      assert.isOk(true, 'there shoud be no exception');
+    }catch(err){
+      console.log(err);
+      assert.isNotOk(err, 'there shoud be no exception');
+    }
+  });
+  
+  it('should not be callable from unknown Accounts', async function() {
+    var hasEx = false;
+    try{
+      let res = await cntr.ProtectedCall({from:accounts[3]});
+      console.log("no exception in unknown "+res);
+    }catch(err){
+      hasEx = true;
+      assert.isOk(err, 'there shoud be exception');
+    }
+    assert.isOk(hasEx, 'there shoud be exception');
+  });
 
 });

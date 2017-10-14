@@ -30,6 +30,10 @@ contract DevTeamContract{
         SetupAccounts();
     }
     
+    function GetNow() public constant returns(uint256){
+        return block.number;
+    }
+    
     function SetupAccounts() public{
       owners[USER1_ACCOUNT1] = USER1_CODE; // pod jednym bitem (userem) może być więcej niż jedno konto
       owners[USER1_ACCOUNT2] = USER1_CODE;
@@ -85,7 +89,7 @@ contract DevTeamContract{
     function RegisterTransaction(address _to,uint256 amount) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
-            transactions.push(Transaction(_to,amount,block.number));
+            transactions.push(Transaction(_to,amount,this.GetNow()));
             pendingAmount = amount+pendingAmount;
         }
     }
@@ -101,8 +105,8 @@ contract DevTeamContract{
     function ProcessTransaction(uint256 i) isHuman isOwner public{
         
         if(owners[msg.sender]>0){
-            if(countConfirmations(i)>=MINIMUM_CONFIRMATION_COUNT 
-            && transactions[i].registrationBlock<block.number-WAIT_BLOCKS
+            if(this.countConfirmations(i)>=MINIMUM_CONFIRMATION_COUNT 
+            && transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS
             && transactions[i].amount > 0){
                 var tmp = transactions[i].amount;
                 transactions[i].amount = 0;
@@ -110,7 +114,7 @@ contract DevTeamContract{
                 pendingAmount = pendingAmount -tmp;
             }
             else{
-                if(transactions[i].registrationBlock<block.number-WAIT_BLOCKS){ 
+                if(transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS){ 
                     //if not confirmed sofar cancel
                     transactions[i].amount = 0;
                 }
