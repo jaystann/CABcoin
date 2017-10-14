@@ -11,43 +11,65 @@ contract DevTeamContract{
     
     uint256 public pendingAmount = 0;
     
-    uint256 constant  WAIT_BLOCKS = 50;
+    /*
+     Numbers of blocks in which transaction must be confirmed by wallet owners 
+     to be allowed for execution, here 5000 blocks ~20-48 hours
+    */
+    uint256 constant  WAIT_BLOCKS = 5000;
     uint256 constant MINIMUM_CONFIRMATION_COUNT = 2;
     
-    uint256 constant USER1_CODE = 1;// każdy user ma inny bit 
-    address constant USER1_ACCOUNT1 = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c; 
-    address constant USER1_ACCOUNT2 = 0x14723a09acff6d2a60dcdf7aa4aff308fddc160c;
-    uint256 constant USER2_CODE = 2;// każdy user ma inny bit 
+    uint256 constant USER1_CODE = 1;// every user has different bit
+    address constant USER1_ACCOUNT1 = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c; //user can have more than one account in case he have lost it
+    address constant USER1_ACCOUNT2 = 0x14723a09acff6d2a60dcdf7aa4aff308fddc160c;//user can have more than one account in case he have lost it
+    uint256 constant USER2_CODE = 2;// every user has different bit
     address constant USER2_ACCOUNT1 = 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db;
-    uint256 constant USER3_CODE = 4;// każdy user ma inny bit 
-    uint256 constant USER4_CODE = 8;// każdy user ma inny bit 
+    uint256 constant USER3_CODE = 4;// every user has different bit
+    uint256 constant USER4_CODE = 8;// every user has different bitt 
     
     mapping (address => uint256) public owners;
     mapping (uint256 => uint256) public confirmations;
     Transaction[] public transactions  ;
     
+    /*
+        Constructor
+    */
     function DevTeamContract() public{
         SetupAccounts();
     }
     
+    /*
+        time measuement is based on blocks
+    */
     function GetNow() public constant returns(uint256){
         return block.number;
     }
-    
+    /*
+      Function that sets the accounts that can do transfers 
+      Only first call changes anything
+    */
     function SetupAccounts() public{
-      owners[USER1_ACCOUNT1] = USER1_CODE; // pod jednym bitem (userem) może być więcej niż jedno konto
-      owners[USER1_ACCOUNT2] = USER1_CODE;
-      owners[USER2_ACCOUNT1] = USER2_CODE;
+      owners[USER1_ACCOUNT1] = USER1_CODE; // all accounts get assigned to the users
+      owners[USER1_ACCOUNT2] = USER1_CODE; // all accounts get assigned to the users
+      owners[USER2_ACCOUNT1] = USER2_CODE; // all accounts get assigned to the users
     }
-    
+    /*
+        Gets Contract Balance
+    */
     function getTotalAmount() constant public returns(uint256){
         return (this.balance);
     }
-    
+    /*
+      Gets Total number of transactions ever created
+      
+    */
     function getTotalNumberOfTransactions() constant public returns(uint256){
         return (transactions.length);
     }
     
+    /*
+    Counts number of confirmations if number is equal or greater than 
+    MINIMUM_CONFIRMATION_COUNT transaction can be confirmed
+    */
     function countConfirmations(uint256 i) constant public returns(uint256){
         uint256 counter = 0;
         uint256 tmp = 0;
@@ -65,11 +87,14 @@ contract DevTeamContract{
         
     }
     
+    address public sndr;
+    address public orgn;
+    
     // Only human, wallet can not be invoked from other contract
     modifier isHuman() {
         var sndr = msg.sender;
         var orgn = tx.origin;
-        if(msg.sender != tx.origin){
+        if(sndr != orgn){
             revert();
         }
         else{
@@ -77,6 +102,9 @@ contract DevTeamContract{
         }
     }
     
+    /*
+     revert operation if caller is not owner of wallet specified in constructor
+    */
     modifier isOwner() {
         if(owners[msg.sender]>0){
             _;   
@@ -86,6 +114,10 @@ contract DevTeamContract{
         }
     }
     
+    /*
+        Registers transaction for confirmation
+        from that moment wallet owners have WAIT_BLOCKS blocks to confirm transaction
+    */
     function RegisterTransaction(address _to,uint256 amount) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
@@ -93,15 +125,27 @@ contract DevTeamContract{
             pendingAmount = amount+pendingAmount;
         }
     }
-    
+    /*
+        If caller is one of wallet owners Function note his confirmation 
+        for transaction number i
+    */
     function ConfirmTransaction(uint256 i)  isHuman isOwner public{
         confirmations[i] = confirmations[i] | owners[msg.sender];
     }
     
+    /*
+        If caller is one of wallet owners Function revert his confirmation 
+        for transaction number i
+    */
     function ReverseConfirmTransaction(uint256 i)  isHuman isOwner public{
         confirmations[i] = confirmations[i] & (~owners[msg.sender]);
     }
-    
+    /*
+      If Transaction number i has correct numbers of confirmations and
+      It has been created less than WAIT_BLOCKS ago it gets executed
+      otherwise, if time is longer than WAIT_BLOCKS it is cancelled,
+      otherwise nothing happends
+    */
     function ProcessTransaction(uint256 i) isHuman isOwner public{
         
         if(owners[msg.sender]>0){
