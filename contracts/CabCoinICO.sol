@@ -104,7 +104,12 @@ contract CABCoinICO is Constants{
 	
 	function refund() public {
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){ // goal not reached
-	    
+	    var sumToReturn = ethGiven[msg.sender];
+	     ethGiven[msg.sender] =0;
+	    if(preICOHolders[msg.sender]){
+	    	sumToReturn = sumToReturn.mul(100-PRE_ICO_RISK_PERCENTAGE).div(100);
+	    }
+	    msg.sender.transfer(sumToReturn);
 	  }
 	  else
 	  {
