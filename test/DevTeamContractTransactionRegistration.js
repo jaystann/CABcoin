@@ -95,8 +95,6 @@ contract('DevTeamContractMock', function(accounts) {
     res = await cntr.ProcessTransaction(0,{from:accounts[0]});
     var endCount = await getPendingAmount();
     await getAcc3Balance();
-    console.log(acc3balance,acc3balanceAfter);
-    console.log(startCount,endCount);
     assert.equal(acc3balance<acc3balanceAfter,true,'balance should increase');
     assert.equal(startCount,endCount+amount, 'pendingAmount should change by transfer amount');
   });
@@ -111,8 +109,6 @@ contract('DevTeamContractMock', function(accounts) {
     res = await cntr.ProcessTransaction(0,{from:accounts[0]});
     var endCount = await getPendingAmount();
     await getAcc3Balance();
-    console.log(acc3balance,acc3balanceAfter);
-    console.log(startCount,endCount);
     assert.equal(acc3balance<acc3balanceAfter,false,'balance should stay the same');
     assert.equal(startCount,endCount, 'pendingAmount should  stay the same ');
   });
@@ -129,8 +125,6 @@ contract('DevTeamContractMock', function(accounts) {
     res = await cntr.ProcessTransaction(0,{from:accounts[0]});
     var endCount = await getPendingAmount();
     await getAcc3Balance();
-    console.log(acc3balance,acc3balanceAfter);
-    console.log(startCount,endCount);
     assert.equal(acc3balance<acc3balanceAfter,false,'balance should stay the same');
     assert.equal(startCount-amount,endCount, 'pendingAmount should  change ');
   });
