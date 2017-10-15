@@ -118,4 +118,23 @@ contract('DevTeamContractMock', function(accounts) {
   });
   
   
+  it('should cancel transaction if no confirmation for WAIT_BLOCKS time and ProcessTransaction executed', async function() {
+    var amount = 1000;
+    var res = await cntr.RegisterTransaction(accounts[3],amount);
+    var res = await cntr.RegisterTransaction(accounts[3],amount);
+    var startCount = await getPendingAmount();
+    var waitBlocksCount = await cntr.WAIT_BLOCKS();
+    res = await cntr.ConfirmTransaction(0,{from:accounts[0]});
+    res = await cntr.SetNow(_startTimeBlock+waitBlocksCount+1);
+    res = await cntr.ProcessTransaction(0,{from:accounts[0]});
+    var endCount = await getPendingAmount();
+    await getAcc3Balance();
+    console.log(acc3balance,acc3balanceAfter);
+    console.log(startCount,endCount);
+    assert.equal(acc3balance<acc3balanceAfter,false,'balance should stay the same');
+    assert.equal(startCount-amount,endCount, 'pendingAmount should  change ');
+  });
+  
+  
+  
 });

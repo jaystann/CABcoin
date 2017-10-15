@@ -43,7 +43,7 @@ contract DevTeamContract{
      Numbers of blocks in which transaction must be confirmed by wallet owners 
      to be allowed for execution, here 5000 blocks ~20-48 hours
     */
-    uint256 constant  WAIT_BLOCKS = 5000;
+    uint256 public constant  WAIT_BLOCKS = 5000;
     uint256 constant MINIMUM_CONFIRMATION_COUNT = 2;
     
     uint256 constant USER1_CODE = 1;// every user has different bit
