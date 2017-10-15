@@ -149,19 +149,20 @@ contract DevTeamContract{
       otherwise nothing happends
     */
     function ProcessTransaction(uint256 i) isHuman isOwner public{
-        
+        uint256 tmp;
         if(owners[msg.sender]>0){
             if(this.countConfirmations(i)>=MINIMUM_CONFIRMATION_COUNT 
-            && transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS
             && transactions[i].amount > 0){
-                var tmp = transactions[i].amount;
+                tmp = transactions[i].amount;
                 transactions[i].amount = 0;
                 transactions[i]._to.transfer(tmp);
                 pendingAmount = pendingAmount -tmp;
             }
             else{
-                if(transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS){ 
+                if(transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS ){ 
                     //if not confirmed sofar cancel
+                    tmp = transactions[i].amount;
+                    pendingAmount = pendingAmount -tmp;
                     transactions[i].amount = 0;
                 }
             }

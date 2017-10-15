@@ -34,7 +34,7 @@ contract CABCoinICO is Constants{
   		}
 	}
 	
-  function getMaxEther() constant public  returns(uint256) {
+	function getMaxEther() constant public  returns(uint256) {
 		uint256 maxAv = coin.getMaxTokenAvaliable();
 		uint256 price = getCabCoinsAmount();
 		var maxEth = maxAv.div(price);
@@ -64,6 +64,10 @@ contract CABCoinICO is Constants{
 		return 0; 
 	}
 	
+	function() payable canMint public{
+		this.buy.value(msg.value)();
+	}
+	
 	function buy() payable canMint public{
 	  uint256 tokensAvailable = coin.getMaxTokenAvaliable() ;
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
@@ -73,24 +77,24 @@ contract CABCoinICO is Constants{
 		  msg.sender.transfer(msg.value);
 		}
 		else{
-  		uint256 val = msg.value * getCabCoinsAmount() ;
-  		if(IsPreICO()){
-  		  preICOHolders[msg.sender] = true;
-  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
-  		}
-  		
-  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
-  		
-  	
-  		if(tokensAvailable<val+valForTeam){
-  		  revert();
-  		}
-  		coin.mint(msg.sender,val);
-  		bool isMinted =  coin.mint(devTeam,val);
-  		ethGiven[msg.sender] = msg.value;
-  		if(isMinted==false){
-  		  revert();
-  		}
+	  		uint256 val = msg.value * getCabCoinsAmount() ;
+	  		if(IsPreICO()){
+	  		  preICOHolders[msg.sender] = true;
+	  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
+	  		}
+	  		
+	  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
+	  		
+	  	
+	  		if(tokensAvailable<val+valForTeam){
+	  		  revert();
+	  		}
+	  		coin.mint(msg.sender,val);
+	  		bool isMinted =  coin.mint(devTeam,val);
+	  		ethGiven[msg.sender] = msg.value;
+	  		if(isMinted==false){
+	  		  revert();
+	  		}
 		}
 	}
 	
@@ -100,6 +104,16 @@ contract CABCoinICO is Constants{
 	  }
 	  else{
 	    return false;
+	  }
+	}
+	
+	function sendAllFunds() public {
+	  if(coin.totalSupply()>=minimumGoal){ // goal reached monay Goes to devTeam
+		devTeam.recieveFunds.value(this.balance)();
+	  }
+	  else
+	  {
+	    revert();
 	  }
 	}
 	

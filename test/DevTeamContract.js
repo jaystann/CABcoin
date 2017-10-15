@@ -1,3 +1,4 @@
+
 'use strict';
 
 const assertJump = require('./helpers/assertJump');
@@ -53,9 +54,6 @@ contract('DevTeamContractMock', function(accounts) {
 
   it('should not be callable even from known Accounts if not direct and modifier isHuman', async function() {
     let caller = await Caller.new(cntr.address);
-    console.log("caller ="+caller.address);
-    console.log("cntr ="+cntr.address);
-    console.log("human ="+accounts[0]);
     var hasEx = false;
     try{
       let res = await caller.HumanOnlyCall({from:accounts[0]});

@@ -7,6 +7,8 @@ contract DevTeamContractMock is DevTeamContract{
     
     address[] testAddr ;
     
+    uint256 public _now;
+    
     function DevTeamContractMock(address acc1_u1,address acc2_u1,address acc1_u2,address acc1_notOwner) public{
         testAddr.push(acc1_u1);
         testAddr.push(acc2_u1);
@@ -15,6 +17,14 @@ contract DevTeamContractMock is DevTeamContract{
         SetupAccounts() ;
     }
     event DevTeamContractMockEv(address caller, address ctrct, address orgn);
+    
+    function SetNow(uint256 n) public{
+        _now = n;
+    }
+    
+    function GetNow() public constant returns(uint256){
+        return _now;
+    }
     
     function ProtectedCall() public isOwner isHuman {
         
