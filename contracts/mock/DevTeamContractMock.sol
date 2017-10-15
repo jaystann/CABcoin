@@ -2,21 +2,6 @@ pragma solidity ^0.4.15;
 
 import './../../contracts/DevTeamContract.sol';
 
-contract Caller {
-    DevTeamContractMock dest ;
-    function Caller(address adr) public{
-        dest = DevTeamContractMock(adr);
-    }
-    
-    function HumanOnlyCall() public {
-        dest.HumanOnlyCall();
-    }
-    
-    function ContractCallable() public  {
-        dest.ContractCallable();
-    }
-}
-
 contract DevTeamContractMock is DevTeamContract{
     
     
@@ -29,6 +14,7 @@ contract DevTeamContractMock is DevTeamContract{
         testAddr.push(acc1_notOwner);
         SetupAccounts() ;
     }
+    event DevTeamContractMockEv(address caller, address ctrct, address orgn);
     
     function ProtectedCall() public isOwner isHuman {
         
@@ -36,10 +22,12 @@ contract DevTeamContractMock is DevTeamContract{
     
     function HumanOnlyCall() public isHuman {
         
+        DevTeamContractMockEv(msg.sender,this, tx.origin);
     }
     
     function ContractCallable() public {
         
+        DevTeamContractMockEv(msg.sender,this, tx.origin);
     }
     
     

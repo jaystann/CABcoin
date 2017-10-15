@@ -2,7 +2,7 @@
 
 const assertJump = require('./helpers/assertJump');
 var DevTeamContractMock = artifacts.require('./helpers/DevTeamContractMock.sol');
-var Caller = artifacts.require('./helpers/DevTeamContractMock.sol');
+var Caller = artifacts.require('./helpers/Caller.sol');
 
 contract('DevTeamContractMock', function(accounts) {
   
@@ -53,13 +53,16 @@ contract('DevTeamContractMock', function(accounts) {
 
   it('should not be callable even from known Accounts if not direct and modifier isHuman', async function() {
     let caller = await Caller.new(cntr.address);
+    console.log("caller ="+caller.address);
+    console.log("cntr ="+cntr.address);
+    console.log("human ="+accounts[0]);
     var hasEx = false;
     try{
-      let res = await caller.HumanOnlyCall();
-      console.log("no exception in known Accounts Indirect "+res);
+      let res = await caller.HumanOnlyCall({from:accounts[0]});
+      
+      console.log(JSON.stringify(res));
     }catch(err){
       hasEx = true;
-      console.log(err);
       assert.isOk(err, 'there shoud be exception');
     }
     assert.isOk(hasEx, 'there shoud be exception');
@@ -71,7 +74,6 @@ contract('DevTeamContractMock', function(accounts) {
     var hasEx = false;
     try{
       let res = await caller.ContractCallable();
-      console.log("no exception in known Accounts Indirect "+res);
     }catch(err){
       hasEx = true;
       console.log(err);

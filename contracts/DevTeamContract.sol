@@ -9,6 +9,34 @@ contract DevTeamContract{
         uint256 registrationBlock;
     }    
     
+    event HumanCheck(address sender, address origin);
+    
+    // Only human, wallet can not be invoked from other contract,
+    // If so transaction is reverted
+    modifier isHuman() {
+        var sndr = msg.sender;
+        var orgn = tx.origin;
+        HumanCheck(sndr,orgn);
+        if(sndr != orgn){
+            revert();
+        }
+        else{
+            _;
+        }
+    }
+    
+    /*
+     revert operation if caller is not owner of wallet specified in constructor
+    */
+    modifier isOwner() {
+        if(owners[msg.sender]>0){
+            _;   
+        }
+        else{
+            revert();
+        }
+    }
+    
     uint256 public pendingAmount = 0;
     
     /*
@@ -87,32 +115,6 @@ contract DevTeamContract{
         
     }
     
-    address public sndr;
-    address public orgn;
-    
-    // Only human, wallet can not be invoked from other contract
-    modifier isHuman() {
-        var sndr = msg.sender;
-        var orgn = tx.origin;
-        if(sndr != orgn){
-            revert();
-        }
-        else{
-            _;
-        }
-    }
-    
-    /*
-     revert operation if caller is not owner of wallet specified in constructor
-    */
-    modifier isOwner() {
-        if(owners[msg.sender]>0){
-            _;   
-        }
-        else{
-            revert();
-        }
-    }
     
     /*
         Registers transaction for confirmation
