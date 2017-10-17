@@ -1,7 +1,7 @@
 pragma solidity ^0.4.15;
 
 contract Constants {
-	uint256 public constant PRE_ICO_RISK_PERCENTAGE = 10;
+	uint256 public constant PRE_ICO_RISK_PERCENTAGE = 5;
 	uint256 public constant TEAM_SHARE_PERCENTAGE = 16;
 	uint256 public constant blocksByDay = 2700;
 	uint256 public constant PRICE_PREICO = 50000;
