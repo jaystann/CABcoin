@@ -7,6 +7,7 @@ contract DevTeamContract{
         address _to;
         uint256 amount;
         uint256 registrationBlock;
+        bool isCoin;
     }    
     
     event HumanCheck(address sender, address origin);
@@ -57,11 +58,14 @@ contract DevTeamContract{
     mapping (address => uint256) public owners;
     mapping (uint256 => uint256) public confirmations;
     Transaction[] public transactions  ;
+    address public coinAdr ;
+    
     
     /*
         Constructor
     */
-    function DevTeamContract() public{
+    function DevTeamContract(address coinAddress) public{
+        coinAdr = coinAddress;
         SetupAccounts();
     }
     
@@ -120,10 +124,10 @@ contract DevTeamContract{
         Registers transaction for confirmation
         from that moment wallet owners have WAIT_BLOCKS blocks to confirm transaction
     */
-    function RegisterTransaction(address _to,uint256 amount) isHuman isOwner public{
+    function RegisterTransaction(address _to,uint256 amount,bool isCoin) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
-            transactions.push(Transaction(_to,amount,this.GetNow()));
+            transactions.push(Transaction(_to,amount,this.GetNow(),isCoin));
             pendingAmount = amount+pendingAmount;
         }
     }
@@ -153,10 +157,21 @@ contract DevTeamContract{
         if(owners[msg.sender]>0){
             if(this.countConfirmations(i)>=MINIMUM_CONFIRMATION_COUNT 
             && transactions[i].amount > 0){
-                tmp = transactions[i].amount;
-                transactions[i].amount = 0;
-                transactions[i]._to.transfer(tmp);
-                pendingAmount = pendingAmount -tmp;
+                if(transactions[i].isCoin == false){
+                    tmp = transactions[i].amount;
+                    if(tmp>this.balance){
+                        transactions[i].amount = 0;
+                        transactions[i]._to.transfer(tmp);
+                        pendingAmount = pendingAmount -tmp;
+                    }
+                    else{
+                        revert();
+                    }
+                }
+                else
+                {
+                    /*transferTokens*/
+                }
             }
             else{
                 if(transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS ){ 

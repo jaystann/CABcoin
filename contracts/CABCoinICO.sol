@@ -15,20 +15,36 @@ contract CABCoinICO is Constants{
 	uint256 public _startBlock ;
 	CABCoin public coin;
 	
-	event MintingError();
-	event FallBack();
+	event MintingError(bool,bool);
 	
 	event AmountToLittle();
 	
-  modifier canMint() {
-    if(coin.mintingFinished()==false){
-    	_;
+    modifier canMint() {
+	    if(coin.mintingFinished()==false){
+	    	_;
+	    }
+	    else{
+	    	revert();
+	    }
     }
-    else{
-    	revert();
+    
+    bool runned = false;
+    
+    modifier runOnce() {
+    	if(runned){
+    		revert();
+    	}
+    	else{
+    		_;
+    	}
+    
     }
-  }
-  
+	
+	function setRelatedContracts(address coinAdr, address devTeamAdr) runOnce() public{
+		coin = CABCoin(coinAdr);
+		devTeam = DevTeamContract(devTeamAdr);
+	}
+	
 	function GetTime() public constant returns(uint256){
 	  return block.number;
 	}
@@ -39,16 +55,11 @@ contract CABCoinICO is Constants{
   			var token = new CABCoin();
   			tokenAddress = address(token);
 		    coin = CABCoin(tokenAddress);
-		    devTeam = new DevTeamContract();
+		    devTeam = new DevTeamContract(address(coin));
   		}
 	}
 	
-	function getMaxEther() constant public  returns(uint256) {
-		uint256 maxAv = coin.getMaxTokenAvaliable();
-		uint256 price = getCabCoinsAmount();
-		var maxEth = maxAv.div(price);
-		return maxEth;
-	}
+	
 	
 	function isAfterICO()  public constant returns(bool) {
 	  return (getCabCoinsAmount() == 0); 
@@ -73,19 +84,22 @@ contract CABCoinICO is Constants{
 		return 0; 
 	}
 	
-	function() payable public{
+	function fallback() payable public{
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){
 		this.refund();
 	  }
 	  else{
 	  	if(isAfterICO() == false){
-			this.buy.value(msg.value)();
+			this.buy();
 	  	}
 	  }
 	}
 	
+	function() payable public{
+		this.fallback();
+	}
+	
 	function buy() payable canMint public{
-		FallBack();
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
 	  
 		if(tokensAmountPerEth==0){
@@ -109,11 +123,11 @@ contract CABCoinICO is Constants{
 		  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
 		  		}
 		  	
-		  		coin.mint(msg.sender,val);
-		  		bool isMinted =  coin.mint(devTeam,valForTeam);
+		  		bool isMintedO = coin.mint(msg.sender,val);
+		  		bool isMintedT =  coin.mint(address(devTeam),valForTeam);
 		  		ethGiven[msg.sender] = msg.value;
-		  		if(isMinted==false){
-		  		  MintingError();
+		  		if(isMintedO==false || isMintedT==false){
+		  		  MintingError(isMintedO,isMintedT);
 		  		}
 	  		}
 		}
@@ -129,7 +143,7 @@ contract CABCoinICO is Constants{
 	}
 	
 	function sendAllFunds() public {
-	  if(coin.totalSupply()>=minimumGoal){ // goal reached monay Goes to devTeam
+	  if(coin.totalSupply()>=minimumGoal){ // goal reached money Goes to devTeam
 		devTeam.recieveFunds.value(this.balance)();
 	  }
 	  else
