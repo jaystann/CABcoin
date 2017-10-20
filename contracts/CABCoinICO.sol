@@ -49,11 +49,11 @@ contract CABCoinICO is Constants{
 	    _startBlock = GetTime();
 	}
 	
-	function SetContracts(address coin, address dev) runOnce(){
+	function SetContracts(address coinAdr, address dev) runOnce(){
 		
   		if(tokenAddress == address(0)){
   			tokenAddress = coin;
-		    coin = CABCoin(coin);
+		    coin = CABCoin(coinAdr);
 		    devTeam =  DevTeamContract(dev);
 		    
 		    
