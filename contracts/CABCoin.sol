@@ -13,7 +13,7 @@ contract CABCoin is MintableToken,Constants{
   uint256 public constant maxTokenSupply = (10**18)*(10**9) ; 
   function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
   	if(totalSupply.add(_amount)<maxTokenSupply){
-  	  return super.mint(_to,_amount);
+  	  super.mint(_to,_amount);
   	}
   	else{
   		return false; 
