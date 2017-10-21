@@ -16,7 +16,6 @@ contract CABCoinICO is Constants{
 	CABCoin public coin;
 	
 	event MintingError();
-	event CabCoinTest(uint256,uint256);
 	
 	event AmountToLittle();
 	
@@ -45,8 +44,42 @@ contract CABCoinICO is Constants{
 	  return block.number;
 	}
 	
-	function CABCoinICO() public {
-	    _startBlock = GetTime();
+	function getAllTimes() constant returns(uint256,uint256,uint256){
+		if(GetTime()<_startBlock){
+			return(_startBlock.sub(GetTime()),0,0);
+		}
+		if(GetTime()<=_startBlock.add(delayOfICOEND))
+		{
+			uint256 currentStageTime = 0;
+			if(GetTime()<_startBlock.add(delayOfPreICO)){
+				currentStageTime = _startBlock.add(delayOfPreICO) - GetTime();
+			}
+			else{
+				if(GetTime()<_startBlock.add(delayOfICO1)){
+					currentStageTime = _startBlock.add(delayOfICO1) - GetTime();
+				}
+				else{
+					if(GetTime()<_startBlock.add(delayOfICO2)){
+						currentStageTime = _startBlock.add(delayOfICO2) - GetTime();
+					}
+				}
+			}
+			if(GetTime()>=_startBlock){
+				return(0,currentStageTime,_startBlock.add(delayOfICOEND)-GetTime());
+			}
+		}
+		else{
+			return(0,0,0);
+		}
+	}
+	
+	function CABCoinICO(uint256 sBlock) public {
+		if(sBlock==0){
+	    	_startBlock = GetTime();
+		}
+		else{
+	    	_startBlock = sBlock;
+		}
 	}
 	
 	function SetContracts(address coinAdr, address dev) runOnce(){
@@ -72,8 +105,6 @@ contract CABCoinICO is Constants{
 	}
 	
 	function getCabCoinsAmount()  public constant returns(uint256) {
-		CabCoinTest(GetTime(),_startBlock.add(delayOfPreICO));
-		CabCoinTest(maxTokenSupplyPreICO,coin.totalSupply());
 	    if(GetTime()<_startBlock.add(delayOfPreICO)){
 	    	if(maxTokenSupplyPreICO>coin.totalSupply()){
 	        	return PRICE_PREICO;
@@ -89,11 +120,6 @@ contract CABCoinICO is Constants{
 	        	return PRICE_ICO2;
 	    	}
 	    }
-	    if(GetTime()<_startBlock.add(delayOfICO3)){
-		    if(maxTokenSupplyICO3>coin.totalSupply()){
-		        return PRICE_ICO3;
-		    }	
-	    } 
 	    if(GetTime()<=_startBlock.add(delayOfICOEND)){
 	    	if(maxTokenSupplyICOEND>=coin.totalSupply()){
 	        	return PRICE_ICO4;
@@ -116,34 +142,40 @@ contract CABCoinICO is Constants{
 	function buy() payable canMint public{
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
 	  
-		if(tokensAmountPerEth==0){
-		  coin.finishMinting();
-		  msg.sender.transfer(msg.value);
+	  
+		if(GetTime()<_startBlock){
+			revert();
 		}
 		else{
-			uint256 tokensAvailable = coin.getMaxTokenAvaliable() ;
-	  		uint256 val = msg.value * tokensAmountPerEth ;
-	  		
-	  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
-	  		
-	  		if(tokensAvailable<val+valForTeam){
-	  			AmountToLittle();
-	  		}
-	  		else
-	  		{
-	  		
-		  		if(IsPreICO()){
-		  		  preICOHolders[msg.sender] = true;
-		  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
+			if(tokensAmountPerEth==0){
+			  coin.finishMinting();
+			  msg.sender.transfer(msg.value);
+			}
+			else{
+				uint256 tokensAvailable = coin.getMaxTokenAvaliable() ;
+		  		uint256 val = msg.value * tokensAmountPerEth ;
+		  		
+		  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
+		  		
+		  		if(tokensAvailable<val+valForTeam){
+		  			AmountToLittle();
 		  		}
-		  	
-		  		coin.mint(msg.sender,val);
-		  		bool isMinted =  coin.mint(devTeam,valForTeam);
-		  		ethGiven[msg.sender] = msg.value;
-		  		if(isMinted==false){
-		  		  MintingError();
+		  		else
+		  		{
+		  		
+			  		if(IsPreICO()){
+			  		  preICOHolders[msg.sender] = true;
+			  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
+			  		}
+			  	
+			  		coin.mint(msg.sender,val);
+			  		bool isMinted =  coin.mint(devTeam,valForTeam);
+			  		ethGiven[msg.sender] = msg.value;
+			  		if(isMinted==false){
+			  		  MintingError();
+			  		}
 		  		}
-	  		}
+			}
 		}
 	}
 	
@@ -165,6 +197,7 @@ contract CABCoinICO is Constants{
 	    revert();
 	  }
 	}
+	
 	
 	function refund() payable public {
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){ // goal not reached

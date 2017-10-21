@@ -3,12 +3,14 @@ pragma solidity ^0.4.15;
 import './OpenZeppelinToken.sol';
 import './Common/Constant.sol';
 
-contract CABCoin is MintableToken,Constants{
+contract CABCoin is MintableToken{
     
 	
 	string public constant name = "CabCoin";
 	string public constant symbol = "CAB";
 	uint8 public constant decimals = 18;
+	
+	uint256 public constant TEAM_SHARE_PERCENTAGE = 16;
 
   uint256 public constant maxTokenSupply = (10**18)*(10**9) ; 
   function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {

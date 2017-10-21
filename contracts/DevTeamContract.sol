@@ -47,10 +47,10 @@ contract DevTeamContract{
     uint256 constant MINIMUM_CONFIRMATION_COUNT = 2;
     
     uint256 constant USER1_CODE = 1;// every user has different bit
-    address constant USER1_ACCOUNT1 = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c; //user can have more than one account in case he have lost it
-    address constant USER1_ACCOUNT2 = 0x14723a09acff6d2a60dcdf7aa4aff308fddc160c;//user can have more than one account in case he have lost it
+    address constant USER1_ACCOUNT1 = 0xEdf57c2A10899AE483a4E52D86b305d53cFC91cb; //user can have more than one account in case he have lost it
+    address constant USER1_ACCOUNT2 = 0xEdf57c2A10899AE483a4E52D86b305d53cFC91cb;//user can have more than one account in case he have lost it
     uint256 constant USER2_CODE = 2;// every user has different bit
-    address constant USER2_ACCOUNT1 = 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db;
+    address constant USER2_ACCOUNT1 = 0xEdf57c2A10899AE483a4E52D86b305d53cFC91cb;
     uint256 constant USER3_CODE = 4;// every user has different bit
     uint256 constant USER4_CODE = 8;// every user has different bitt 
     

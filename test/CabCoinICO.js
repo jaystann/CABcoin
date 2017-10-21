@@ -598,7 +598,8 @@ contract('CABCoinICO', function(accounts) {
     tokenICO = await CABCoinICO.new();
     token = await CABCoin.new();
     devTeam = await DevTeamContract.new();
-    tokenICO.SetContracts(token.address,devTeam.address);
+    await tokenICO.SetContracts(token.address,devTeam.address);
+    await token.transferOwnership(tokenICO.address);
   });
   
   it('should be properly constructed', async function() {
