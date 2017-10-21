@@ -627,20 +627,13 @@ contract('CABCoinICO', function(accounts) {
      assert.equal(isFinished,false);
   });
   
-  it('should call buy without errors', async function(){
-    try{
-      var resp = await tokenICO.buy({value:10000,from:accounts[1]});
-    }catch(ex){
-      console.log(ex);
-    }
+  it('should call refund without errors', async function(){
+      await tokenICO.refund();
   });
   
-  it('should call refund without errors', async function(){
-    try{
-      var resp = await tokenICO.buy({value:10000,from:accounts[1]});
-    }catch(ex){
-      console.log(ex);
-    }
+  it('should call buy without errors', async function(){
+      await tokenICO.buy({value:10000});
   });
+  
   
 });
