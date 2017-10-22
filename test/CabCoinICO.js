@@ -598,6 +598,7 @@ contract('CABCoinICO', function(accounts) {
     tokenICO = await CABCoinICO.new();
     token = await CABCoin.new();
     devTeam = await DevTeamContract.new();
+  
     await tokenICO.SetContracts(token.address,devTeam.address);
     await token.transferOwnership(tokenICO.address);
   });
@@ -610,14 +611,12 @@ contract('CABCoinICO', function(accounts) {
   it('should not be afterICO on the begining of it', async function(){
     var amount = (await tokenICO.getCabCoinsAmount.call()).toNumber();
     var state = await tokenICO.isAfterICO();
-    console.log("afterICO",amount,state);
     assert.equal(state, false);
   });
   
   it('should return proper CAB Coins Amounts', async function(){
     var amount =(await tokenICO.getCabCoinsAmount.call()).toNumber();
     var price = (await tokenICO.PRICE_PREICO.call()).toNumber();
-    console.log("CAB Coins Amounts",amount,price);
     assert.equal(amount, price);
   });
   
@@ -633,8 +632,13 @@ contract('CABCoinICO', function(accounts) {
   });
   
   it('should call buy without errors', async function(){
-      await tokenICO.buy(accounts[0],{value:1});
+      await tokenICO.buy(accounts[0],{from:accounts[0],  value: 1000000});
   });
-  
+  /*
+  it('should allow transfer without errors', async function() {
+      var resp = await web3.eth.sendTransaction({from:accounts[0], to:tokenICO.address, value: 1000000});
+      console.log(JSON.stringify(resp));
+  })
+  */
   
 });

@@ -8,14 +8,13 @@ import './Common/Constant.sol';
 
 contract CABCoinICO is Constants{
   using SafeMath for uint256;
-  mapping(address => bool) preICOHolders ;
-  mapping(address => uint256) ethGiven ;
+  mapping(address => bool) public preICOHolders ;
+  mapping(address => uint256) public ethGiven ;
 	address public tokenAddress = 0;
 	DevTeamContract public devTeam;
 	uint256 public _startBlock ;
 	CABCoin public coin;
 	
-	event MintingError();
 	
 	event AmountToLittle();
 	
@@ -24,7 +23,7 @@ contract CABCoinICO is Constants{
     	_;
     }
     else{
-    	revert();
+    	
     }
   }
   
@@ -40,9 +39,19 @@ contract CABCoinICO is Constants{
   	}
   }
   
+	uint256 public currBlock = 1;
+	
+	function SetTime(uint256 time) public {
+	  currBlock = time;
+	}
+	
+	function GetTime() public constant returns(uint256) {
+	  return currBlock.add(0);
+	}
+	/*
 	function GetTime() public constant returns(uint256) {
 	  return block.number;
-	}
+	}*/
 	
 	function getAllTimes() constant returns(uint256,uint256,uint256){
 		if(GetTime()<_startBlock){
@@ -129,6 +138,7 @@ contract CABCoinICO is Constants{
 	}
 	
 	function() payable public{
+		
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){
 		this.refund.value(msg.value)(msg.sender);
 	  }
@@ -139,45 +149,53 @@ contract CABCoinICO is Constants{
 	  }
 	}
 	
-	function buy(address owner) payable canMint public{
+	function buy(address owner) payable public{
+		
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
-	  
 	  
 		if(GetTime()<_startBlock){
 			revert();
 		}
 		else{
+			
 			if(tokensAmountPerEth==0){
 			  coin.finishMinting();
 			  msg.sender.transfer(msg.value);
 			}
 			else{
+			
 				uint256 tokensAvailable = coin.getMaxTokenAvaliable() ;
 		  		uint256 val = msg.value * tokensAmountPerEth ;
 		  		
 		  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
 		  		
 		  		if(tokensAvailable<val+valForTeam){
-		  			AmountToLittle();
 		  		}
 		  		else
 		  		{
-		  		
+		  			
 			  		if(IsPreICO()){
 			  		  preICOHolders[owner] = true;
 			  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
 			  		}
 			  	
-			  		coin.mint(owner,val);
+			  		bool isMintedDev =coin.mint(owner,val);
 			  		bool isMinted =  coin.mint(devTeam,valForTeam);
-			  		ethGiven[owner] = msg.value;
-			  		if(isMinted==false){
-			  		  MintingError();
+			  		
+			     	ethGiven[owner] = msg.value;
+			  		if(isMintedDev==false){
 			  		  revert();
 			  		}
+			  		if(isMinted==false){
+			  		  revert();
+			  		}
+			  		
 		  		}
+			
 			}
+		 
 		}
+		
 	}
 	
 	function IsPreICO() returns(bool){

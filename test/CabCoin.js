@@ -11,7 +11,7 @@ contract('CABCoin', function(accounts) {
   
   
   beforeEach(async function() {
-    token = await CABCoin.new();
+    token = await CABCoin.new({from:accounts[0]});
     token.mint(accounts[0],1000);
     token.mint(accounts[1],1000);
     token.mint(accounts[2],1000);
@@ -29,6 +29,35 @@ contract('CABCoin', function(accounts) {
     assert.equal(b0,1000);
     var b3 = parseInt(await token.balanceOf(accounts[3]));
     assert.equal(b3,0);
+  })
+  
+  it('should not allow others to mint', async function(){
+    var b3 = parseInt(await token.balanceOf(accounts[3]));
+    var hasError = true;
+    assert.equal(b3,0);
+    try{
+      var resp = await token.mint(accounts[3],100,{from:accounts[1]});
+      hasError = false;
+    }catch(ex){
+    }
+    b3 = parseInt(await token.balanceOf(accounts[3]));
+    assert.equal(b3,0);
+    assert.equal(hasError,true);
+    
+  })
+  
+  it('should allow owner to mint', async function(){
+    var b0 = parseInt(await token.balanceOf(accounts[0]));
+    assert.equal(b0,1000);
+    var b3 = parseInt(await token.balanceOf(accounts[3]));
+    assert.equal(b3,0);
+    await token.mint(accounts[3],100,{from:accounts[0]});
+    b3 = parseInt(await token.balanceOf(accounts[3]));
+    assert.equal(b3,100);
+    token.mint(accounts[3],100,{from:accounts[0]});
+    b3 = parseInt(await token.balanceOf(accounts[3]));
+    assert.equal(b3,200);
+    
   })
   it('should transfer tokens properly', async function(){
     var amount = 100;

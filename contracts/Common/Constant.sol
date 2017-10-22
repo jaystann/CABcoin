@@ -13,7 +13,7 @@ contract Constants {
 	uint256 public constant delayOfICO1 = blocksByDay*46;
 	uint256 public constant delayOfICO2 = blocksByDay*69;
 	uint256 public constant delayOfICOEND = blocksByDay*90;
-    uint256 public constant minimumGoal = (10**18)*(10**6)*266 ; // minimalny cel to 266 000 000 cab coinów, co da 6 000 Eth 
+    uint256 public constant minimumGoal = (10**18)*(10**5)*2666 ; // minimalny cel to 266 000 000 cab coinów, co da 6 000 Eth 
   uint256 public constant maxTokenSupplyPreICO = (10**18)*(10**8)*2 ; 
   uint256 public constant maxTokenSupplyICO1 = (10**18)*(10**8)*5 ; 
   uint256 public constant maxTokenSupplyICO2 = (10**18)*(10**8)*7 ; 

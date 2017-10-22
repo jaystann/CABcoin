@@ -19,8 +19,12 @@ contract Ownable {
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(msg.sender == owner);
-    _;
+    if(msg.sender == owner){
+      _;
+    }
+    else{
+      revert();
+    }
   }
 
 
@@ -145,8 +149,12 @@ contract MintableToken is StandardToken, Ownable {
 
 
   modifier canMint() {
-    require(!mintingFinished);
-    _;
+    if(!mintingFinished){
+      _;
+    }
+    else{
+      revert();
+    }
   }
 
   /**
