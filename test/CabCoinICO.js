@@ -629,11 +629,11 @@ contract('CABCoinICO', function(accounts) {
   });
   
   it('should call refund without errors', async function(){
-      await tokenICO.refund();
+      await tokenICO.refund(accounts[0]);
   });
   
   it('should call buy without errors', async function(){
-      await tokenICO.buy({value:10000});
+      await tokenICO.buy(accounts[0],{value:1});
   });
   
   

@@ -8,6 +8,7 @@ contract CoinI{
 contract IcoI{
     
     function getAllTimes() public constant returns(uint256,uint256,uint256);
+    function getCabCoinsAmount()  public constant returns(uint256);
 }
 contract StatsContract{
     
@@ -21,16 +22,18 @@ contract StatsContract{
         dev = devA;
         coin = CoinI(coinA);
     }
-    
+    //https://rinkeby.etherscan.io/api?module=proxy&action=eth_call&tag=latest&to=0xfacef007dd31fe27b5a69583e9b5643d8e941146&data=0xc59d48470000000000000000000000000000000000000000000000000000000000000000&apikey=8EZID85QG13GAN4PRNB6CN6QPUIVCVNKQB
     function getStats() constant returns (address,address,uint256,uint256,uint256,uint256,uint256,uint256){
-        address coinA = address(coin);
-        address icoA = address(ico);
+        address[2] memory adr;
+        adr[0] =  address(coin);
+        adr[1] = address(ico);
         var (toStart,toEndPhase,toEndAll) = ico.getAllTimes();
-        var amoutSold = coin.totalSupply();
-        var maxSupply = coin.maxTokenSupply();
-        var ethRised = icoA.balance + dev.balance;
+       // var cabsPerEth = ico.getCabCoinsAmount();
+        var amountSold = coin.totalSupply()/(10**18);
+        var maxSupply = coin.maxTokenSupply()/(10**18);
+        var ethRised = (adr[0].balance + dev.balance)/(10**15);
         
-        return (coinA, icoA, toStart, toEndPhase, toEndAll, amoutSold, maxSupply, ethRised);
+        return (adr[0], adr[1], toStart, toEndPhase, toEndAll, amountSold, maxSupply, ethRised);
     }
   
 }

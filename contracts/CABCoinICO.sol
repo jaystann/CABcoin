@@ -130,16 +130,16 @@ contract CABCoinICO is Constants{
 	
 	function() payable public{
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){
-		this.refund.value(msg.value)();
+		this.refund.value(msg.value)(msg.sender);
 	  }
 	  else{
 	  	if(isAfterICO() == false){
-			this.buy.value(msg.value)();
+			this.buy.value(msg.value)(msg.sender);
 	  	}
 	  }
 	}
 	
-	function buy() payable canMint public{
+	function buy(address owner) payable canMint public{
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
 	  
 	  
@@ -164,15 +164,16 @@ contract CABCoinICO is Constants{
 		  		{
 		  		
 			  		if(IsPreICO()){
-			  		  preICOHolders[msg.sender] = true;
+			  		  preICOHolders[owner] = true;
 			  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
 			  		}
 			  	
-			  		coin.mint(msg.sender,val);
+			  		coin.mint(owner,val);
 			  		bool isMinted =  coin.mint(devTeam,valForTeam);
-			  		ethGiven[msg.sender] = msg.value;
+			  		ethGiven[owner] = msg.value;
 			  		if(isMinted==false){
 			  		  MintingError();
+			  		  revert();
 			  		}
 		  		}
 			}
@@ -199,18 +200,18 @@ contract CABCoinICO is Constants{
 	}
 	
 	
-	function refund() payable public {
+	function refund(address sender) payable public {
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){ // goal not reached
-	    var sumToReturn = ethGiven[msg.sender];
-	     ethGiven[msg.sender] =0;
+	    var sumToReturn = ethGiven[sender];
+	     ethGiven[sender] =0;
 	    if(preICOHolders[msg.sender]){
 	    	sumToReturn = sumToReturn.mul(100-PRE_ICO_RISK_PERCENTAGE).div(100);
 	    }
-	    msg.sender.transfer(sumToReturn+msg.value);
+	    sender.transfer(sumToReturn+msg.value);
 	  }
 	  else
 	  {
-	  	 msg.sender.transfer(msg.value);
+	  	 sender.transfer(msg.value);
 	  }
 	}
 }

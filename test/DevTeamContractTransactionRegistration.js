@@ -12,7 +12,7 @@ contract('DevTeamContractMock', function(accounts) {
   let _startTimeBlock = 1000000;
   
   beforeEach(async function() {
-    cntr = await DevTeamContractMock.new(accounts[0],accounts[1],accounts[2],accounts[3]);
+    cntr = await DevTeamContractMock.new(accounts[0],accounts[1],accounts[2],accounts[3],accounts[4]);
     let sumToSend = 10000000;
     let res = await cntr.recieveFunds({value : sumToSend});
     res = await cntr.SetNow(_startTimeBlock);
@@ -77,12 +77,24 @@ contract('DevTeamContractMock', function(accounts) {
     var amount = 1000;
     var res = await cntr.RegisterTransaction(accounts[3],amount);
     var startCount = await getPendingAmount();
-    res = await cntr.ProcessTransaction(0);
-    var endCount = await getPendingAmount();
-    await getAcc3Balance();
-    
-    assert.equal(acc3balance,acc3balanceAfter,'balance should not increase');
-    assert.equal(startCount,endCount, 'pendingAmount should not change');
+    var errorDuringTransaction = true;
+    try{
+      res = await cntr.ProcessTransaction(0);
+      errorDuringTransaction = false;
+    }
+    catch(ex){
+      if(ex.message.indexOf("invalid opcode")==-1){
+        errorDuringTransaction = false;
+        throw "incorrect exception";
+      }
+    }
+    if(errorDuringTransaction==false){
+      var endCount = await getPendingAmount();
+      await getAcc3Balance();
+      
+      assert.equal(acc3balance,acc3balanceAfter,'balance should not increase');
+      assert.equal(startCount,endCount, 'pendingAmount should not change');
+    }
   });
   
   
@@ -99,6 +111,27 @@ contract('DevTeamContractMock', function(accounts) {
     assert.equal(startCount,endCount+amount, 'pendingAmount should change by transfer amount');
   });
   
+  it('should not transfer if enaught confirmations but account[0] did not confirm', async function() {
+    var amount = 1000;
+    var res = await cntr.RegisterTransaction(accounts[3],amount);
+    var startCount = await getPendingAmount();
+    res = await cntr.ConfirmTransaction(0,{from:accounts[4]});
+    res = await cntr.ConfirmTransaction(0,{from:accounts[2]});
+    try{
+      res = await cntr.ProcessTransaction(0,{from:accounts[1]});
+    }
+    catch(ex){
+      if(ex.message.indexOf("invalid opcode")==-1){
+        errorDuringTransaction = false;
+        throw "incorrect exception";
+      }
+    }
+    var endCount = await getPendingAmount();
+    await getAcc3Balance();
+    assert.equal(acc3balance<acc3balanceAfter,false,'balance should stay the same');
+    assert.equal(startCount,endCount, 'pendingAmount should not change ');
+  });
+  
   
   it('should not transfer if confirmations by the same person', async function() {
     var amount = 1000;
@@ -106,7 +139,15 @@ contract('DevTeamContractMock', function(accounts) {
     var startCount = await getPendingAmount();
     res = await cntr.ConfirmTransaction(0,{from:accounts[0]});
     res = await cntr.ConfirmTransaction(0,{from:accounts[1]});
-    res = await cntr.ProcessTransaction(0,{from:accounts[0]});
+    try{
+      res = await cntr.ProcessTransaction(0,{from:accounts[0]});
+    }
+    catch(ex){
+      if(ex.message.indexOf("invalid opcode")==-1){
+        errorDuringTransaction = false;
+        throw "incorrect exception";
+      }
+    }
     var endCount = await getPendingAmount();
     await getAcc3Balance();
     assert.equal(acc3balance<acc3balanceAfter,false,'balance should stay the same');

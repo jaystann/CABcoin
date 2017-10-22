@@ -9,11 +9,12 @@ contract DevTeamContractMock is DevTeamContract{
     
     uint256 public _now;
     
-    function DevTeamContractMock(address acc1_u1,address acc2_u1,address acc1_u2,address acc1_notOwner) public{
+    function DevTeamContractMock(address acc1_u1,address acc2_u1,address acc1_u2,address acc1_notOwner,address acc1_u3) public{
         testAddr.push(acc1_u1);
         testAddr.push(acc2_u1);
         testAddr.push(acc1_u2);
         testAddr.push(acc1_notOwner);
+        testAddr.push(acc1_u3);
         SetupAccounts() ;
     }
     event DevTeamContractMockEv(address caller, address ctrct, address orgn);
@@ -45,7 +46,8 @@ contract DevTeamContractMock is DevTeamContract{
         if(testAddr.length>=4){
           owners[testAddr[0]] = 1; // pod jednym bitem (userem) może być więcej niż jedno konto
           owners[testAddr[1]] = 1;
-          owners[testAddr[2]] = 2;}
+          owners[testAddr[2]] = 2;
+          owners[testAddr[4]] = 4;}
     }
     
 }

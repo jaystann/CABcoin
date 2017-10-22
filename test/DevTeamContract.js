@@ -10,7 +10,7 @@ contract('DevTeamContractMock', function(accounts) {
   let cntr ;
   
   beforeEach(async function() {
-    cntr = await DevTeamContractMock.new(accounts[0],accounts[1],accounts[2],accounts[3]);
+    cntr = await DevTeamContractMock.new(accounts[0],accounts[1],accounts[2],accounts[3],accounts[4]);
   });
   
   it('should allow Transfer', async function() {
