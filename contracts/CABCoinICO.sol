@@ -40,7 +40,7 @@ contract CABCoinICO is Constants{
   }
   
 	uint256 public currBlock = 1;
-	
+/*	
 	function SetTime(uint256 time) public {
 	  currBlock = time;
 	}
@@ -48,10 +48,10 @@ contract CABCoinICO is Constants{
 	function GetTime() public constant returns(uint256) {
 	  return currBlock.add(0);
 	}
-	/*
+	*/
 	function GetTime() public constant returns(uint256) {
 	  return block.number;
-	}*/
+	}
 	
 	function getAllTimes() constant returns(uint256,uint256,uint256){
 		if(GetTime()<_startBlock){
