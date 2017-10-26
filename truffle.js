@@ -27,6 +27,16 @@ engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(providerU
 engine.start(); // Required by the provider engine.
 
 
+var providerUrlMain = "https://mainnet.infura.io/hvN3davA6zG6AdH8mU81";
+var engineMain = new ProviderEngine();
+// filters
+engineMain.addProvider(new FilterSubprovider());
+
+engineMain.addProvider(new WalletSubprovider(wallet, {}));
+engineMain.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(providerUrlMain)));
+engineMain.start(); // Required by the provider engine.
+
+
 module.exports = {
   networks: {
     
@@ -44,11 +54,12 @@ module.exports = {
       network_id: "*" // Match any network id
     },
     mainnet: {
-      host: "localhost",
+      network_id: 1,    // Official main network id
       gasPrice:1,
-      gasPrice:110000000,
+      gasPrice:1100000000,
       gas: 6000000,
-      port: 8545,
+      provider: engineMain, // Use our custom provider
+      from: address,     // Use the address we derived
       network_id: "*" // Match any network id
     }
   }

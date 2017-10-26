@@ -31,7 +31,7 @@ contract StatsContract{
        // var cabsPerEth = ico.getCabCoinsAmount();
         var amountSold = coin.totalSupply()/(10**18);
         var maxSupply = coin.maxTokenSupply()/(10**18);
-        var ethRised = (adr[0].balance + dev.balance)/(10**15);
+        var ethRised = (adr[1].balance + dev.balance)/(10**15);
         
         return (adr[0], adr[1], toStart, toEndPhase, toEndAll, amountSold, maxSupply, ethRised);
     }

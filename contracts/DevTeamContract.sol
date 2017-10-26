@@ -1,12 +1,19 @@
 pragma solidity ^0.4.15;
 
 import './Common/Constant.sol';
+
+
+contract Transferable {
+  function transfer(address to, uint256 value) public returns (bool);
+}
+
 contract DevTeamContract{
     
     struct Transaction{
         address _to;
         uint256 amount;
         uint256 registrationBlock;
+        address from;
     }    
     
     // Only human, wallet can not be invoked from other contract,
@@ -123,7 +130,18 @@ contract DevTeamContract{
     function RegisterTransaction(address _to,uint256 amount) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
-            transactions.push(Transaction(_to,amount,this.GetNow()));
+            transactions.push(Transaction(_to,amount,this.GetNow(),address(0)));
+            pendingAmount = amount+pendingAmount;
+        }
+    }
+    /*
+        Registers transaction for confirmation, designed for tokens transfer
+        from that moment wallet owners have WAIT_BLOCKS blocks to confirm transaction
+    */
+    function RegisterTokenTransaction(address _to,address _from,uint256 amount) isHuman isOwner public{
+    
+        if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
+            transactions.push(Transaction(_to,amount,this.GetNow(),_from));
             pendingAmount = amount+pendingAmount;
         }
     }
@@ -153,10 +171,18 @@ contract DevTeamContract{
         if(owners[msg.sender]>0){
             if(this.countConfirmations(i)>=MINIMUM_CONFIRMATION_COUNT 
             && transactions[i].amount > 0){
-                tmp = transactions[i].amount;
-                transactions[i].amount = 0;
-                transactions[i]._to.transfer(tmp);
-                pendingAmount = pendingAmount -tmp;
+                if(transactions[i].from==address(0)){
+                    tmp = transactions[i].amount;
+                    transactions[i].amount = 0;
+                    transactions[i]._to.transfer(tmp);
+                    pendingAmount = pendingAmount -tmp;
+                }
+                else{
+                    var token = Transferable(transactions[i].from);
+                    tmp = transactions[i].amount;
+                    transactions[i].amount = 0;
+                    token.transfer(transactions[i]._to,tmp);
+                }
             }
             else{
                 if(transactions[i].registrationBlock<this.GetNow()-WAIT_BLOCKS ){ 
