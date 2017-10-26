@@ -124,7 +124,8 @@ contract DevTeamContract{
     
     
     /*
-        Registers transaction for confirmation
+        Registers transaction for confirmation, designed for tokens transfer or Ether
+        if ether transfered leave from blank
         from that moment wallet owners have WAIT_BLOCKS blocks to confirm transaction
     */
     function RegisterTransaction(address _to,uint256 amount) isHuman isOwner public{
@@ -134,11 +135,7 @@ contract DevTeamContract{
             pendingAmount = amount+pendingAmount;
         }
     }
-    /*
-        Registers transaction for confirmation, designed for tokens transfer
-        from that moment wallet owners have WAIT_BLOCKS blocks to confirm transaction
-    */
-    function RegisterTokenTransaction(address _to,address _from,uint256 amount) isHuman isOwner public{
+    function RegisterTokenTransaction(address _to,uint256 amount,address _from) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
             transactions.push(Transaction(_to,amount,this.GetNow(),_from));

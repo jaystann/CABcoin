@@ -1,5 +1,5 @@
 'use strict';
-
+/*
 const assertJump = require('./helpers/assertJump');
 var CABCoinICO = artifacts.require('./CABCoinICO.sol');
 var CABCoin = artifacts.require('./CABCoin.sol');
@@ -88,3 +88,4 @@ contract('CABCoinICOMock', function(accounts) {
   
   
 });
+*/
