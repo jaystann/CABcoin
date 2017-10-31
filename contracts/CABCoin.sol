@@ -1,7 +1,6 @@
 pragma solidity ^0.4.15;
 
 import './OpenZeppelinToken.sol';
-import './Common/Constant.sol';
 
 contract CABCoin is MintableToken{
     
@@ -16,8 +15,10 @@ contract CABCoin is MintableToken{
   function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
       
   	if(totalSupply.add(_amount)<maxTokenSupply){
-  	  super.mint(_to,_amount);
-  	  return true;
+  	    
+  	  bool status = super.mint(_to,_amount);
+  	  Transfer(address(0), _to, _amount);
+  	  return status;
   	}
   	else{
   		return false; 

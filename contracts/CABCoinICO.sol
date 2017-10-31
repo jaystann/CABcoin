@@ -2,18 +2,47 @@ pragma solidity ^0.4.15;
 
 
 
-import './CABCoin.sol';
-import './DevTeamContract.sol';
 import './Common/Constant.sol';
+import './Common/SafeMath.sol';
+
+contract DevTeamContractI{
+	function recieveFunds() payable public;
+}
+
+contract CABCoinI{
+  address public owner;
+  uint256 public totalSupply;
+  bool public mintingFinished = false;
+  modifier onlyOwner() {
+    if(msg.sender == owner){
+      _;
+    }
+    else{
+      revert();
+    }
+  }
+  
+  modifier canMint() {
+    if(!mintingFinished){
+      _;
+    }
+    else{
+      revert();
+    }
+  }
+  function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool);
+  function getMaxTokenAvaliable() constant public  returns(uint256);
+  function finishMinting() onlyOwner public returns (bool);
+}
 
 contract CABCoinICO is Constants{
   using SafeMath for uint256;
   mapping(address => bool) public preICOHolders ;
   mapping(address => uint256) public ethGiven ;
 	address public tokenAddress = 0;
-	DevTeamContract public devTeam;
+	DevTeamContractI public devTeam;
 	uint256 public _startBlock ;
-	CABCoin public coin;
+	CABCoinI public coin;
 	
 	
 	event AmountToLittle();
@@ -40,15 +69,7 @@ contract CABCoinICO is Constants{
   }
   
 	uint256 public currBlock = 1;
-/*
-	function SetTime(uint256 time) public {
-	  currBlock = time;
-	}
 	
-	function GetTime() public constant returns(uint256) {
-	  return currBlock.add(0);
-	}
-*/	
 	function GetTime() public constant returns(uint256) {
 	  return block.number;
 	}
@@ -95,8 +116,8 @@ contract CABCoinICO is Constants{
 		
   		if(tokenAddress == address(0)){
   			tokenAddress = coin;
-		    coin = CABCoin(coinAdr);
-		    devTeam =  DevTeamContract(dev);
+		    coin = CABCoinI(coinAdr);
+		    devTeam =  DevTeamContractI(dev);
 		    
 		    
   		}
@@ -151,6 +172,8 @@ contract CABCoinICO is Constants{
 	
 	function buy(address owner) payable public{
 		
+	  bool isMintedDev ;
+	  bool isMinted ;
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
 	  
 		if(GetTime()<_startBlock){
@@ -170,6 +193,19 @@ contract CABCoinICO is Constants{
 		  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
 		  		
 		  		if(tokensAvailable<val+valForTeam){
+		  			val = val.mul(tokensAvailable).div(val.add(valForTeam));
+		  			valForTeam = valForTeam.mul(tokensAvailable).div(val.add(valForTeam));
+			  		isMintedDev =coin.mint(owner,val);
+			  		isMinted =  coin.mint(devTeam,valForTeam);
+			  		
+			     	ethGiven[owner] = msg.value;
+			  		if(isMintedDev==false){
+			  		  revert();
+			  		}
+			  		if(isMinted==false){
+			  		  revert();
+			  		}
+					coin.finishMinting();
 		  		}
 		  		else
 		  		{
@@ -179,8 +215,8 @@ contract CABCoinICO is Constants{
 			  		  devTeam.recieveFunds.value(msg.value.mul(PRE_ICO_RISK_PERCENTAGE).div(100))();
 			  		}
 			  	
-			  		bool isMintedDev =coin.mint(owner,val);
-			  		bool isMinted =  coin.mint(devTeam,valForTeam);
+			  		isMintedDev =coin.mint(owner,val);
+			  		isMinted =  coin.mint(devTeam,valForTeam);
 			  		
 			     	ethGiven[owner] = msg.value;
 			  		if(isMintedDev==false){
