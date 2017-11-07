@@ -149,14 +149,14 @@ contract DevTeamContract{
     function RegisterTransaction(address _to,uint256 amount) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
-            transactions.push(Transaction(_to,amount,this.GetNow(),address(0)));
+            transactions.push(Transaction(_to,amount,amount,this.GetNow(),address(0)));
             pendingAmount = amount+pendingAmount;
         }
     }
     function RegisterTokenTransaction(address _to,uint256 amount,address _from) isHuman isOwner public{
     
         if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
-            transactions.push(Transaction(_to,amount,this.GetNow(),_from));
+            transactions.push(Transaction(_to,amount,amount,this.GetNow(),_from));
             pendingAmount = amount+pendingAmount;
         }
     }
