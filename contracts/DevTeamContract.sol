@@ -12,6 +12,7 @@ contract DevTeamContract{
     struct Transaction{
         address _to;
         uint256 amount;
+        uint256 oldAmount;
         uint256 registrationBlock;
         address from;
     }    
@@ -188,6 +189,7 @@ contract DevTeamContract{
                 if(transactions[i].from==address(0)){
                     tmp = transactions[i].amount;
                     transactions[i].amount = 0;
+                    transactions[i].oldAmount = tmp;
                     transactions[i]._to.transfer(tmp);
                     pendingAmount = pendingAmount -tmp;
                 }
@@ -195,6 +197,7 @@ contract DevTeamContract{
                     var token = Transferable(transactions[i].from);
                     tmp = transactions[i].amount;
                     transactions[i].amount = 0;
+                    transactions[i].oldAmount = tmp;
                     token.transfer(transactions[i]._to,tmp);
                 }
             }

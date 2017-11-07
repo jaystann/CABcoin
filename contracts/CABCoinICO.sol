@@ -193,8 +193,9 @@ contract CABCoinICO is Constants{
 		  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
 		  		
 		  		if(tokensAvailable<val+valForTeam){
+		  			
 		  			val = val.mul(tokensAvailable).div(val.add(valForTeam));
-		  			valForTeam = valForTeam.mul(tokensAvailable).div(val.add(valForTeam));
+		  			valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
 			  		isMintedDev =coin.mint(owner,val);
 			  		isMinted =  coin.mint(devTeam,valForTeam);
 			  		

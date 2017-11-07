@@ -11,7 +11,7 @@ module.exports = function(deployer) {
   console.log("1");
   Promise.all(
       [deployer.deploy(CABCoin),
-       deployer.deploy(CABCoinICO),
+       deployer.deploy(CABCoinICO,/*4586211*/1139979),
        deployer.deploy(DevTeamContract),
        deployer.deploy(StatsContract)]
        

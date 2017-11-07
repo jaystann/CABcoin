@@ -607,6 +607,15 @@ contract('CABCoinICO', function(accounts) {
     var price = await tokenICO.PRICE_PREICO();
     assert.equal(price, 50000);
   });
+  
+  it('should not allow second call of  SetContracts', async function() {
+    try{
+      var res = await tokenICO.SetContracts(token.address,devTeam.address);
+      assert.isNotOk(res,"should throw ex");
+    }catch(ex){
+      assert.isOk(ex,"should throw ex");
+    }
+  });
  
   it('should not be afterICO on the begining of it', async function(){
     var amount = (await tokenICO.getCabCoinsAmount.call()).toNumber();
