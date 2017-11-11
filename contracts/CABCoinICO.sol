@@ -46,6 +46,9 @@ contract CABCoinICO is Constants{
 	
 	
 	event AmountToLittle();
+	event SendAllFunds();
+	event Buy(address who,uint256 amount);
+	event Refund(address who,uint256 amount);
 	
   modifier canMint() {
     if(coin.mintingFinished()==false){
@@ -74,7 +77,7 @@ contract CABCoinICO is Constants{
 	  return block.number;
 	}
 	
-	function getAllTimes() constant returns(uint256,uint256,uint256){
+	function getAllTimes() public constant returns(uint256,uint256,uint256){
 		if(GetTime()<_startBlock){
 			return(_startBlock.sub(GetTime()),0,0);
 		}
@@ -112,14 +115,12 @@ contract CABCoinICO is Constants{
 		}
 	}
 	
-	function SetContracts(address coinAdr, address dev) runOnce(){
+	function SetContracts(address coinAdr, address dev) runOnce() public{
 		
   		if(tokenAddress == address(0)){
-  			tokenAddress = coin;
+  			tokenAddress = coinAdr;
 		    coin = CABCoinI(coinAdr);
 		    devTeam =  DevTeamContractI(dev);
-		    
-		    
   		}
 	}
 	
@@ -135,6 +136,9 @@ contract CABCoinICO is Constants{
 	}
 	
 	function getCabCoinsAmount()  public constant returns(uint256) {
+		if(GetTime()<_startBlock){
+			return 0;	
+		}
 	    if(GetTime()<_startBlock.add(delayOfPreICO)){
 	    	if(maxTokenSupplyPreICO>coin.totalSupply()){
 	        	return PRICE_PREICO;
@@ -162,10 +166,16 @@ contract CABCoinICO is Constants{
 		
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){
 		this.refund.value(msg.value)(msg.sender);
-	  }
-	  else{
-	  	if(isAfterICO() == false){
-			this.buy.value(msg.value)(msg.sender);
+	  }else{
+	  	if(msg.value==0){
+	  		sendAllFunds();
+	  	}else{
+	  		
+		  	if(isAfterICO() == false){
+				this.buy.value(msg.value)(msg.sender);
+		  	}else{
+	  			revert();	
+		  	}
 	  	}
 	  }
 	}
@@ -174,6 +184,7 @@ contract CABCoinICO is Constants{
 		
 	  bool isMintedDev ;
 	  bool isMinted ;
+	  Buy(owner,msg.value);
 	  uint256 tokensAmountPerEth = getCabCoinsAmount();
 	  
 		if(GetTime()<_startBlock){
@@ -188,18 +199,18 @@ contract CABCoinICO is Constants{
 			else{
 			
 				uint256 tokensAvailable = coin.getMaxTokenAvaliable() ;
-		  		uint256 val = msg.value * tokensAmountPerEth ;
+		  		uint256 val = tokensAmountPerEth.mul(msg.value) ;
 		  		
 		  		uint256 valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
 		  		
 		  		if(tokensAvailable<val+valForTeam){
-		  			
+		  			AmountToLittle();
 		  			val = val.mul(tokensAvailable).div(val.add(valForTeam));
 		  			valForTeam = val.mul(TEAM_SHARE_PERCENTAGE).div(100-TEAM_SHARE_PERCENTAGE);
 			  		isMintedDev =coin.mint(owner,val);
 			  		isMinted =  coin.mint(devTeam,valForTeam);
 			  		
-			     	ethGiven[owner] = msg.value;
+			     	ethGiven[owner] = ethGiven[owner].add(msg.value);
 			  		if(isMintedDev==false){
 			  		  revert();
 			  		}
@@ -219,7 +230,7 @@ contract CABCoinICO is Constants{
 			  		isMintedDev =coin.mint(owner,val);
 			  		isMinted =  coin.mint(devTeam,valForTeam);
 			  		
-			     	ethGiven[owner] = msg.value;
+			     	ethGiven[owner] = ethGiven[owner].add(msg.value);
 			  		if(isMintedDev==false){
 			  		  revert();
 			  		}
@@ -245,7 +256,9 @@ contract CABCoinICO is Constants{
 	}
 	
 	function sendAllFunds() public {
-	  if(coin.totalSupply()>=minimumGoal){ // goal reached monay Goes to devTeam
+	  SendAllFunds();
+	  if(coin.totalSupply()>=minimumGoal){ // goal reached money Goes to devTeam
+	    
 		devTeam.recieveFunds.value(this.balance)();
 	  }
 	  else
@@ -256,17 +269,26 @@ contract CABCoinICO is Constants{
 	
 	
 	function refund(address sender) payable public {
+	  Refund(sender,ethGiven[sender]);
 	  if(isAfterICO() && coin.totalSupply()<minimumGoal){ // goal not reached
 	    var sumToReturn = ethGiven[sender];
 	     ethGiven[sender] =0;
 	    if(preICOHolders[msg.sender]){
 	    	sumToReturn = sumToReturn.mul(100-PRE_ICO_RISK_PERCENTAGE).div(100);
 	    }
-	    sender.transfer(sumToReturn+msg.value);
+	    sumToReturn = sumToReturn.add(msg.value);
+	    if(sumToReturn>this.balance){
+	    	sender.transfer(this.balance);
+	    }
+	    else{
+	    	sender.transfer(sumToReturn.add(msg.value));
+	    }
 	  }
 	  else
 	  {
-	  	 sender.transfer(msg.value);
+	  	if(msg.value>0){
+	  		sender.transfer(msg.value);
+	  	}
 	  }
 	}
 }
