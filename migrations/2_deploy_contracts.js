@@ -11,9 +11,14 @@ module.exports = function(deployer) {
   deployer.link(SafeMath, CABCoinICOMock);
   deployer.link(SafeMath, CABCoinICO);
   console.log("1");
+  /*Etap 0 - 2 tygodnie
+Etap 1 - 4 tygodnie
+Etap 2 - 4 tygodnie
+Etap 3 - 6 tygodni
+Etap 4 - 8 tygodni*/
   Promise.all(
-      [deployer.deploy(CABCoin),
-       deployer.deploy(CABCoinICO,/*4586211*/1225200),
+      [deployer.deploy(CABCoin), 
+       deployer.deploy(CABCoinICO,4589798),
        deployer.deploy(DevTeamContract),
        deployer.deploy(StatsContract)]
        
