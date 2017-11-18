@@ -49,7 +49,7 @@ contract DevTeamContract{
      to be allowed for execution, here 10000 blocks ~2.5 days
     */
     uint256 public constant  WAIT_BLOCKS = 15000;
-    uint256 constant MINIMUM_CONFIRMATION_COUNT = 3;
+    uint256 constant MINIMUM_CONFIRMATION_COUNT = 2;
     
     uint256 constant USER1_CODE = 1;// every user has different bit
     address constant USER1_ACCOUNT1 = 0x383125Faf0c83671D42Ac941BDc33cd38131a9d1; 
@@ -155,7 +155,7 @@ contract DevTeamContract{
     }
     function RegisterTokenTransaction(address _to,uint256 amount,address _from) isHuman isOwner public{
     
-        if(owners[msg.sender]>0 && amount+pendingAmount<=this.balance){
+        if(owners[msg.sender]>0){
             transactions.push(Transaction(_to,amount,amount,this.GetNow(),_from));
             pendingAmount = amount+pendingAmount;
         }

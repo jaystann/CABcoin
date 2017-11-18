@@ -18,7 +18,7 @@ Etap 3 - 6 tygodni
 Etap 4 - 8 tygodni*/
   Promise.all(
       [deployer.deploy(CABCoin), 
-       deployer.deploy(CABCoinICO,4589798),
+       deployer.deploy(CABCoinICO,4584621),
        deployer.deploy(DevTeamContract),
        deployer.deploy(StatsContract)]
        
